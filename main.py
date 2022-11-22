@@ -64,7 +64,7 @@ modelo.addConstrs(((x[a,t-1,e] + xr[a,t,e]) <= b_e for a in A_ for t in T_[2:] f
 modelo.addConstrs((quicksum(xr[a,t,e] for a in A_) <= (y[t,e] * delta) for t in T_ for e in E_), name ="R5")
 
 # R6 CONSUMO MINIMO
-modelo.addConstrs((quicksum(xc[a,t,e] for a in A_) >= (h_e[e] * v_et[e,t] * j) for t in T_ for e in E_), name ="R6")
+modelo.addConstrs((quicksum(xc[a,t,e] for a in A_) >= (v_et[e,t] * j) for t in T_ for e in E_), name ="R6")
 
 # R7 PRODUCCION
 modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p for t in T_), name="R7")
