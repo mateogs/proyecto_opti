@@ -84,11 +84,44 @@ modelo.setObjective(quicksum(quicksum(quicksum(c_a[a] * xr[a,t,e] for a in A_) f
 
 #----------------------- Optimizacion de Modelo ------------------------
 modelo.optimize()
-try:
-    valor_objetivo = modelo.ObjVal
-except:
-    valor_objetivo = "F"
+valor_objetivo = modelo.ObjVal
 
 
-# Mostrar Resultados
-print(valor_objetivo)
+#----------------------- Almacenar Resultados ------------------------
+s_x = ""
+s_xr = ""
+s_xc = ""
+# creación de strings con resultados de variables
+for e in E_:
+    for t in T_:
+        for a in A_:
+            s_x += f" \n{int(x[a,t,e].x)},{a},{t},{e}"
+            s_xr += f" \n{int(xr[a,t,e].x)},{a},{t},{e}"
+            s_xc += f" \n{int(xc[a,t,e].x)},{a},{t},{e}"
+
+with open("resultados/resultados_x.csv", "w") as archivo: 
+    archivo.write("Variable x: a, t, e")
+    archivo.write(s_x)
+
+with open("resultados/resultados_xr.csv", "w") as archivo: 
+    archivo.write("Variable xr: a, t, e")
+    archivo.write(s_xr)
+
+with open("resultados/resultados_xc.csv", "w") as archivo: 
+    archivo.write("Variable xc: a, t, e")
+    archivo.write(s_xc)
+
+with open("resultados/resultados_y.csv", "w") as archivo: 
+    archivo.write("Variable y: t, e")
+    for e in E_:
+        for t in T_:
+            archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
+
+
+for e in E_:
+    for t in T_:
+        for a in A_:
+            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
+            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
+
