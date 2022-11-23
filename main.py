@@ -69,7 +69,10 @@ modelo.addConstrs((quicksum(xc[a,t,e] for a in A_) >= (v_et[e,t] * j) for t in T
 # R7 PRODUCCION
 modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p for t in T_), name="R7")
 
-# R8 NATURALEZA
+# R8 CONSUMO BALANCEADO DE ALIMENTOS
+modelo.addConstrs((xc[a,t,e] == xc[b,t,e] for a in A_ for b in A_ for t in T_ for e in E_), name="R8")
+
+# R9 NATURALEZA
 modelo.addConstrs((x[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.1")
 modelo.addConstrs((xr[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.2")
 modelo.addConstrs((xc[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.3")
@@ -118,10 +121,10 @@ with open("resultados/resultados_y.csv", "w") as archivo:
             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
-for e in E_:
-    for t in T_:
-        for a in A_:
-            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
-            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
-            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
+#for e in E_:
+#    for t in T_:
+#        for a in A_:
+#            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
+#            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+#            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
 
