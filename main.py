@@ -55,7 +55,7 @@ modelo.addConstrs((x[a,1,e] == (xr[a,t,e] - xc[a,t,e]) for a in A_ for t in T_[2
 modelo.addConstrs((x[a,t,e] == (x[a,t-1,e] + xr[a,t,e] - xc[a,t,e]) for a in A_ for t in T_[2:] for e in E_), name = "R2")
 
 # R3 STOCK MINIMO
-modelo.addConstrs(((x[a,t-1,e] + xr[a,t,e]) >= (h_e[e] * j) for a in A_ for t in T_[2:] for e in E_), name = "R3")
+modelo.addConstrs(((quicksum(x[a,t-1,e] for a in A_))>= (h_e[e] * j) for t in T_[2:] for e in E_), name = "R3")
 
 # R4 CAPACIDAD ALM
 modelo.addConstrs(((x[a,t-1,e] + xr[a,t,e]) <= b_e for a in A_ for t in T_[2:] for e in E_), name = "R4")
@@ -71,6 +71,8 @@ modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p fo
 
 # R8 CONSUMO BALANCEADO DE ALIMENTOS
 modelo.addConstrs((xc[a,t,e] == xc[b,t,e] for a in A_ for b in A_ for t in T_ for e in E_), name="R8")
+
+modelo.addConstrs((xc[a,t,e] <= xr[a,t,e] for a in A_ for t in T_ for e in E_), name="R10")
 
 # R9 NATURALEZA
 modelo.addConstrs((x[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.1")
@@ -121,10 +123,10 @@ with open("resultados/resultados_y.csv", "w") as archivo:
             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
-#for e in E_:
-#    for t in T_:
-#        for a in A_:
-#            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
-#            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
-#            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
+for e in E_:
+    for t in T_:
+        for a in A_:
+            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
+            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
 
