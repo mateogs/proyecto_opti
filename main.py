@@ -49,22 +49,25 @@ y = modelo.addVars(T_, E_, vtype = GRB.INTEGER)
 
 #----------------------- Creacion de Restricciones ------------------------
 # R1 STOCK PRIMERA SEMANA
-modelo.addConstrs((x[a,1,e] == (xr[a,t,e] - xc[a,t,e]) for a in A_ for t in T_[2:] for e in E_), name="R1")
+modelo.addConstrs(((x[a,1,e]) == ((h_e[e] * (j/CANTIDAD_ALIMENTOS))) for a in A_ for e in E_), name="R1")
+
+#R12
+modelo.addConstrs(((xr[a,t,e] + x[a,t-1,e]) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name="R12")
 
 # R2 INVENTARIO
 modelo.addConstrs((x[a,t,e] == (x[a,t-1,e] + xr[a,t,e] - xc[a,t,e]) for a in A_ for t in T_[2:] for e in E_), name = "R2")
 
 # R3 STOCK MINIMO
-modelo.addConstrs(((quicksum(x[a,t-1,e] for a in A_))>= (h_e[e] * j) for t in T_[2:] for e in E_), name = "R3")
+modelo.addConstrs(((x[a,t-1,e] + xr[a,t,e] )>= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name = "R3")
 
 # R4 CAPACIDAD ALM
-modelo.addConstrs(((x[a,t-1,e] + xr[a,t,e]) <= b_e for a in A_ for t in T_[2:] for e in E_), name = "R4")
+modelo.addConstrs(((quicksum(x[a,t-1,e] + xr[a,t,e] for a in A_)) <= b_e for t in T_[2:] for e in E_), name = "R4")
 
 # R5 CAPACIDAD CAMIONES
 modelo.addConstrs((quicksum(xr[a,t,e] for a in A_) <= (y[t,e] * delta) for t in T_ for e in E_), name ="R5")
 
 # R6 CONSUMO MINIMO
-modelo.addConstrs((quicksum(xc[a,t,e] for a in A_) >= (v_et[e,t] * j) for t in T_ for e in E_), name ="R6")
+modelo.addConstrs((xc[a,t,e]  >= (v_et[e,t] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_ for e in E_), name ="R6")
 
 # R7 PRODUCCION
 modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p for t in T_), name="R7")
@@ -72,18 +75,22 @@ modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p fo
 # R8 CONSUMO BALANCEADO DE ALIMENTOS
 modelo.addConstrs((xc[a,t,e] == xc[b,t,e] for a in A_ for b in A_ for t in T_ for e in E_), name="R8")
 
-modelo.addConstrs((xc[a,t,e] <= xr[a,t,e] for a in A_ for t in T_ for e in E_), name="R10")
+#R9 
+modelo.addConstrs((xc[a,t,e] <= xr[a,t,e] for a in A_ for t in T_ for e in E_), name="R9")
 
-# R9 NATURALEZA
-modelo.addConstrs((x[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.1")
-modelo.addConstrs((xr[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.2")
-modelo.addConstrs((xc[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R9.3")
-modelo.addConstrs((y[t,e] >= 0 for t in T_ for e in E_), name ="R9.4")
+#R10 STOCK PREVENTIVO
+modelo.addConstrs(((x[a,t,e] ) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[1:] for e in E_), name = "R10")
+
+# R11 NATURALEZA
+modelo.addConstrs((x[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R11.1")
+modelo.addConstrs((xr[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R11.2")
+modelo.addConstrs((xc[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R11.3")
+modelo.addConstrs((y[t,e] >= 0 for t in T_ for e in E_), name ="R11.4")
 
 
 #----------------------- Creacion de Funcion Objetivo ------------------------
 modelo.setObjective(quicksum(quicksum(quicksum(c_a[a] * xr[a,t,e] for a in A_) for t in T_) for e in E_) + 
-                        quicksum(quicksum(y[t,e] * k * d_e[e] for t in T_) for e in E_) + 
+                        quicksum(quicksum(y[t,e] * (k + t*10) * d_e[e] for t in T_) for e in E_) + 
                         quicksum(quicksum(quicksum(alfa * x[a,t,e] for a in A_) for t in T_) for e in E_), GRB.MINIMIZE)
 
 
@@ -104,29 +111,30 @@ for e in E_:
             s_xr += f" \n{int(xr[a,t,e].x)},{a},{t},{e}"
             s_xc += f" \n{int(xc[a,t,e].x)},{a},{t},{e}"
 
-with open("resultados/resultados_x.csv", "w") as archivo: 
-    archivo.write("Variable x: a, t, e")
-    archivo.write(s_x)
+# with open("resultados/resultados_x.csv", "w") as archivo: 
+#     archivo.write("Variable x: a, t, e")
+#     archivo.write(s_x)
 
-with open("resultados/resultados_xr.csv", "w") as archivo: 
-    archivo.write("Variable xr: a, t, e")
-    archivo.write(s_xr)
+# with open("resultados/resultados_xr.csv", "w") as archivo: 
+#     archivo.write("Variable xr: a, t, e")
+#     archivo.write(s_xr)
 
-with open("resultados/resultados_xc.csv", "w") as archivo: 
-    archivo.write("Variable xc: a, t, e")
-    archivo.write(s_xc)
+# with open("resultados/resultados_xc.csv", "w") as archivo: 
+#     archivo.write("Variable xc: a, t, e")
+#     archivo.write(s_xc)
 
-with open("resultados/resultados_y.csv", "w") as archivo: 
-    archivo.write("Variable y: t, e")
-    for e in E_:
-        for t in T_:
-            archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
+# with open("resultados/resultados_y.csv", "w") as archivo: 
+#     archivo.write("Variable y: t, e")
+#     for e in E_:
+#         for t in T_:
+#             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
 for e in E_:
     for t in T_:
         for a in A_:
-            print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
-            print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
-            print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t}")
+            if e==3:
+                print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t-1}")
+                print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+                print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
 
