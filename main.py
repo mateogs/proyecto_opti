@@ -85,7 +85,7 @@ modelo.addConstrs((xc[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R
 modelo.addConstrs((y[t,e] >= 0 for t in T_ for e in E_), name ="R11.4")
 
 #R12 
-modelo.addConstrs(((xr[a,t,e] + x[a,t-1,e]) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name="R12")
+#modelo.addConstrs(((xr[a,t,e] + x[a,t-1,e]) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name="R12")
 
 #----------------------- Creacion de Funcion Objetivo ------------------------
 modelo.setObjective(quicksum(quicksum(quicksum(c_a[a] * xr[a,t,e] for a in A_) for t in T_) for e in E_) + 
@@ -129,11 +129,11 @@ with open("resultados/resultados_y.csv", "w") as archivo:
             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
-for e in E_:
-    for t in T_:
-        for a in A_:
-            if e==3:
-                print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t-1}")
-                print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
-                print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
+# for e in E_:
+#     for t in T_:
+#         for a in A_:
+#             if e==3:
+#                 print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t-1}")
+#                 print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+#                 print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
 
