@@ -51,9 +51,6 @@ y = modelo.addVars(T_, E_, vtype = GRB.INTEGER)
 # R1 STOCK PRIMERA SEMANA
 modelo.addConstrs(((x[a,1,e]) == ((h_e[e] * (j/CANTIDAD_ALIMENTOS))) for a in A_ for e in E_), name="R1")
 
-#R12
-modelo.addConstrs(((xr[a,t,e] + x[a,t-1,e]) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name="R12")
-
 # R2 INVENTARIO
 modelo.addConstrs((x[a,t,e] == (x[a,t-1,e] + xr[a,t,e] - xc[a,t,e]) for a in A_ for t in T_[2:] for e in E_), name = "R2")
 
@@ -75,8 +72,8 @@ modelo.addConstrs((quicksum(quicksum(xr[a,t,e] for e in E_) for a in A_) <= p fo
 # R8 CONSUMO BALANCEADO DE ALIMENTOS
 modelo.addConstrs((xc[a,t,e] == xc[b,t,e] for a in A_ for b in A_ for t in T_ for e in E_), name="R8")
 
-#R9 
-modelo.addConstrs((xc[a,t,e] <= xr[a,t,e] for a in A_ for t in T_ for e in E_), name="R9")
+#R9 recibo inicial
+modelo.addConstrs((xr[a,1,e] == x[a,2,e] - (x[a,1,e] - xc[a,1,e]) for a in A_ for e in E_), name="R9")
 
 #R10 STOCK PREVENTIVO
 modelo.addConstrs(((x[a,t,e] ) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[1:] for e in E_), name = "R10")
@@ -87,6 +84,8 @@ modelo.addConstrs((xr[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R
 modelo.addConstrs((xc[a,t,e] >= 0 for a in A_ for t in T_ for e in E_), name ="R11.3")
 modelo.addConstrs((y[t,e] >= 0 for t in T_ for e in E_), name ="R11.4")
 
+#R12 
+modelo.addConstrs(((xr[a,t,e] + x[a,t-1,e]) >= (h_e[e] * (j/CANTIDAD_ALIMENTOS)) for a in A_ for t in T_[2:] for e in E_), name="R12")
 
 #----------------------- Creacion de Funcion Objetivo ------------------------
 modelo.setObjective(quicksum(quicksum(quicksum(c_a[a] * xr[a,t,e] for a in A_) for t in T_) for e in E_) + 
@@ -111,23 +110,23 @@ for e in E_:
             s_xr += f" \n{int(xr[a,t,e].x)},{a},{t},{e}"
             s_xc += f" \n{int(xc[a,t,e].x)},{a},{t},{e}"
 
-# with open("resultados/resultados_x.csv", "w") as archivo: 
-#     archivo.write("Variable x: a, t, e")
-#     archivo.write(s_x)
+with open("resultados/resultados_x.csv", "w") as archivo: 
+     archivo.write("Variable x: a, t, e")
+     archivo.write(s_x)
 
-# with open("resultados/resultados_xr.csv", "w") as archivo: 
-#     archivo.write("Variable xr: a, t, e")
-#     archivo.write(s_xr)
+with open("resultados/resultados_xr.csv", "w") as archivo: 
+     archivo.write("Variable xr: a, t, e")
+     archivo.write(s_xr)
 
-# with open("resultados/resultados_xc.csv", "w") as archivo: 
-#     archivo.write("Variable xc: a, t, e")
-#     archivo.write(s_xc)
+with open("resultados/resultados_xc.csv", "w") as archivo: 
+     archivo.write("Variable xc: a, t, e")
+     archivo.write(s_xc)
 
-# with open("resultados/resultados_y.csv", "w") as archivo: 
-#     archivo.write("Variable y: t, e")
-#     for e in E_:
-#         for t in T_:
-#             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
+with open("resultados/resultados_y.csv", "w") as archivo: 
+    archivo.write("Variable y: t, e")
+    for e in E_:
+        for t in T_:
+            archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
 for e in E_:
