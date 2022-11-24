@@ -129,11 +129,11 @@ with open("resultados/resultados_y.csv", "w") as archivo:
             archivo.write(f" \n{int(y[t,e].x)},{t},{e}")
 
 
-# for e in E_:
-#     for t in T_:
-#         for a in A_:
-#             if e==3:
-#                 print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t-1}")
-#                 print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
-#                 print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
+for e in E_:
+    for t in T_:
+        for a in A_:
+            if e==3:
+                print(f"El establecimiento {e} tuvo {int(x[a,t,e].x)} kilos del alimento {a} al final de la semana {t-1}")
+                print(f"El establecimiento {e} consumió {int(xc[a,t,e].x)} kilos del alimento {a} la semana {t}")
+                print(f"El establecimiento {e} recibió {int(xr[a,t,e].x)} kilos del alimento {a} la semana {t}")
 
